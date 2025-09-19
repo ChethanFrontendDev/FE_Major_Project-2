@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Leads = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,6 +16,10 @@ const Leads = () => {
 
   const clearFilter = () => {
     setSelectedStatus(null);
+  };
+
+  const handleNewLead = () => {
+    navigate("/lead-form");
   };
 
   const filteredData = selectedStatus
@@ -107,6 +113,13 @@ const Leads = () => {
           disabled={!selectedStatus}
         >
           Clear Filter
+        </button>
+
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => handleNewLead()}
+        >
+          Add New Lead
         </button>
       </div>
 

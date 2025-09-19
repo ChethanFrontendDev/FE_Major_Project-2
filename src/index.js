@@ -8,6 +8,7 @@ import Agents from "./pages/Agents";
 import Sales from "./pages/Sales";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import LeadForm from "./components/LeadForm";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -16,6 +17,7 @@ root.render(
       <App>
         <Routes>
           <Route path="/" element={<Leads />} />
+          <Route path="/lead-form" element={<LeadForm />} />
           <Route path="/sales" element={<Sales />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/reports" element={<Reports />} />
