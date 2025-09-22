@@ -12,6 +12,9 @@ const Leads = () => {
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("");
 
+  const [sortOrder, setSortOrder] = useState(""); // "", "low-high", "high-low"
+  const [sortedData, setSortedData] = useState(data || []);
+
   const statuses = ["New", "Contacted", "Qualified", "Proposal Sent", "Closed"];
 
   const handleStatusChange = (event) => {
@@ -86,6 +89,26 @@ const Leads = () => {
   useEffect(() => {
     fetchLeadsData();
   }, [selectedStatus, selectedAgent]);
+
+  useEffect(() => {
+    if (!sortOrder) {
+      setSortedData(data);
+      return;
+    }
+
+    const priorityOrder = { Low: 1, Medium: 2, High: 3 };
+
+    const sorted = [...(data || [])].sort((a, b) => {
+      const aPriority = priorityOrder[a.priority] || 0;
+      const bPriority = priorityOrder[b.priority] || 0;
+
+      return sortOrder === "low-high"
+        ? aPriority - bPriority
+        : bPriority - aPriority;
+    });
+
+    setSortedData(sorted);
+  }, [sortOrder, data]);
 
   // Bootstrap badge colors mapped to status
   const badgeColors = {
@@ -181,46 +204,64 @@ const Leads = () => {
         </button>
       </div>
 
+      <div className="mt-4">
+        <label htmlFor="prioritySort" className="form-label">
+          Sort by Priority:
+        </label>
+        <select
+          id="prioritySort"
+          className="form-select mb-3"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
+          <option value="">None</option>
+          <option value="low-high">Low to High</option>
+          <option value="high-low">High to Low</option>
+        </select>
+      </div>
+
       <div className="row mt-4">
         {loader && <p className="text-center">Loading...</p>}
-        {data?.length === 0 ? (
-          <p>No cards found for selected status.</p>
-        ) : (
-          data?.map((item) => (
-            <div key={item._id} className="col-md-4 mb-4">
-              <div className="card shadow-sm">
-                <div className="card-body">
-                  <div className="d-flex justify-content-between align-items-start mb-2">
-                    <h5 className="card-title mb-0">{item.name}</h5>
-                    <span
-                      className={`badge bg-${
-                        badgeColors[item.status] || "secondary"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
-                  </div>
 
-                  <ul className="list-unstyled small text-muted mb-0">
-                    <li className="mb-1">
-                      <strong>Agent Name:</strong> {item.salesAgent.name}
-                    </li>
-                    <li className="mb-1">
-                      <strong>Source:</strong> {item.source}
-                    </li>
-                    <li className="mb-1">
-                      <strong>Priority:</strong> {item.priority}
-                    </li>
-                    <li>
-                      <strong>Time to Close:</strong>
-                      {item.timeToClose}
-                    </li>
-                  </ul>
+        {!loader &&
+          (sortedData?.length === 0 || (!sortedData && data?.length === 0)) && (
+            <p>No cards found for selected filters.</p>
+          )}
+
+        {(sortedData?.length ? sortedData : data)?.map((item) => (
+          <div key={item._id} className="col-md-4 mb-4">
+            <div className="card shadow-sm">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-start mb-2">
+                  <h5 className="card-title mb-0">{item.name}</h5>
+                  <span
+                    className={`badge bg-${
+                      badgeColors[item.status] || "secondary"
+                    }`}
+                  >
+                    {item.status}
+                  </span>
                 </div>
+
+                <ul className="list-unstyled small text-muted mb-0">
+                  <li className="mb-1">
+                    <strong>Agent Name:</strong> {item.salesAgent.name}
+                  </li>
+                  <li className="mb-1">
+                    <strong>Source:</strong> {item.source}
+                  </li>
+                  <li className="mb-1">
+                    <strong>Priority:</strong> {item.priority}
+                  </li>
+                  <li>
+                    <strong>Time to Close:</strong>
+                    {item.timeToClose}
+                  </li>
+                </ul>
               </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
     </div>
   );
