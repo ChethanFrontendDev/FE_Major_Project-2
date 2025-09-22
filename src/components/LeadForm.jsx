@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const LeadForm = () => {
+  const location = useLocation();
+  const { mode, formData } = location.state;
   const initialFormData = {
     name: "",
     source: "",
@@ -14,7 +17,19 @@ const LeadForm = () => {
   const [agentList, setAgentList] = useState(null);
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [formValues, setFormValues] = useState(initialFormData);
+  const [formValues, setFormValues] = useState(() => {
+    if (mode === "edit" && formData) {
+      return {
+        ...formData,
+        salesAgent: formData.salesAgent._id || formData.salesAgent,
+        tags: Array.isArray(formData.tags)
+          ? formData.tags.join(", ")
+          : formData.tags,
+      };
+    } else {
+      return initialFormData;
+    }
+  });
 
   const handleFormValues = (event) => {
     const { name, value } = event.target;
@@ -36,8 +51,14 @@ const LeadForm = () => {
         .filter((tag) => tag !== ""),
     };
 
-    fetch("https://be-major-project-2.vercel.app/leads", {
-      method: "POST",
+    const method = mode === "edit" ? "PUT" : "POST";
+    const url =
+      mode === "edit"
+        ? `https://be-major-project-2.vercel.app/leads/${formValues._id}`
+        : `https://be-major-project-2.vercel.app/leads`;
+
+    fetch(url, {
+      method,
       headers: {
         "Content-Type": "application/json",
       },
@@ -45,13 +66,21 @@ const LeadForm = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        setFormValues(initialFormData);
-        setMessage("Lead Added Successfully.");
+        if (!mode === "edit") {
+          setFormValues(initialFormData);
+        }
+        setMessage(
+          mode === "edit"
+            ? "Lead Updated Successfully."
+            : "Lead Added Successfully."
+        );
         setErrorMessage("");
       })
       .catch((error) => {
         console.error(error);
-        setErrorMessage("Failed to Add Lead.");
+        setErrorMessage(
+          mode === "edit" ? "Failed to Update Lead." : "Failed to Add Lead."
+        );
         setMessage("");
       });
   };

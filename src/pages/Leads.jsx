@@ -35,7 +35,7 @@ const Leads = () => {
   };
 
   const handleNewLead = () => {
-    navigate("/lead-form");
+    navigate("/lead-form",{state: {mode: "post"}});
   };
 
   const fetchLeadStatusList = () => {
@@ -184,7 +184,9 @@ const Leads = () => {
               >
                 <option value="">Select Status</option>
                 {statuses?.map((status) => (
-                  <option value={status}>{status}</option>
+                  <option key={status} value={status}>
+                    {status}
+                  </option>
                 ))}
               </select>
             </div>
@@ -198,7 +200,9 @@ const Leads = () => {
               >
                 <option value="">Select Sales Agent</option>
                 {agentList.map((agent) => (
-                  <option value={agent.name}>{agent.name}</option>
+                  <option key={agent._id} value={agent.name}>
+                    {agent.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -264,7 +268,12 @@ const Leads = () => {
           )}
 
         {(sortedData?.length ? sortedData : data)?.map((item) => (
-          <div key={item._id} className="col-md-4 mb-4">
+          <div
+            key={item._id}
+            className="col-md-4 mb-4"
+            onClick={() => navigate(`/lead/${item._id}`, { state: { item } })}
+            style={{ cursor: "pointer" }}
+          >
             <div className="card shadow-sm">
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-start mb-2">
@@ -289,8 +298,7 @@ const Leads = () => {
                     <strong>Priority:</strong> {item.priority}
                   </li>
                   <li>
-                    <strong>Time to Close:</strong>
-                    {item.timeToClose}
+                    <strong>Time to Close:</strong> {item.timeToClose}
                   </li>
                 </ul>
               </div>
