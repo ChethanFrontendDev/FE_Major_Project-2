@@ -3,43 +3,89 @@ import { useNavigate } from "react-router-dom";
 
 const Leads = () => {
   const navigate = useNavigate();
+  const [leadStatusList, setLeadStatusList] = useState(null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loader, setLoader] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedStatus, setSelectedStatus] = useState(null);
+  const [agentList, setAgentList] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedAgent, setSelectedAgent] = useState("");
 
   const statuses = ["New", "Contacted", "Qualified", "Proposal Sent", "Closed"];
 
-  const handleStatusSelect = (status) => {
-    setSelectedStatus(status);
+  const handleStatusChange = (event) => {
+    setSelectedStatus(event.target.value);
+  };
+
+  const handleAgentChange = (event) => {
+    setSelectedAgent(event.target.value);
   };
 
   const clearFilter = () => {
-    setSelectedStatus(null);
+    setSelectedStatus("");
+    setSelectedAgent("");
   };
 
   const handleNewLead = () => {
     navigate("/lead-form");
   };
 
-  const filteredData = selectedStatus
-    ? data.filter((item) => item.status === selectedStatus)
-    : data;
-
-  useEffect(() => {
-    const url = "https://be-major-project-2.vercel.app/leads";
-
+  const fetchLeadStatusList = () => {
+    const url = `https://be-major-project-2.vercel.app/leads`;
     fetch(url)
       .then((res) => res.json())
       .then((data) => {
-        setData(data);
+        setLeadStatusList(data);
         setLoading(false);
       })
-      .catch((err) => {
-        setError("Failed to load leads");
+      .catch((error) => {
+        setError(error.message);
         setLoading(false);
       });
+  };
+
+  const fetchLeadsData = () => {
+    const query = `status=${selectedStatus}&salesAgent=${selectedAgent}`;
+    const url = `https://be-major-project-2.vercel.app/leads?${query}`;
+
+    setLoader(true);
+    fetch(url)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("No Leads Found for selected filters.");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setData(data);
+        setLoader(false);
+      })
+      .catch((error) => {
+        setError(error.message);
+        setLoader(false);
+      });
+  };
+
+  const getAgentList = () => {
+    fetch("https://be-major-project-2.vercel.app/agents")
+      .then((res) => res.json())
+      .then((data) => {
+        setAgentList(data);
+      })
+      .catch((error) => {
+        setError(error.message);
+      });
+  };
+
+  useEffect(() => {
+    fetchLeadStatusList();
+    getAgentList();
   }, []);
+
+  useEffect(() => {
+    fetchLeadsData();
+  }, [selectedStatus, selectedAgent]);
 
   // Bootstrap badge colors mapped to status
   const badgeColors = {
@@ -60,7 +106,8 @@ const Leads = () => {
         <ul className="list-group ">
           {statuses.map((status) => {
             const count =
-              data?.filter((item) => item.status === status).length || 0;
+              leadStatusList?.filter((item) => item.status === status).length ||
+              0;
             if (count === 0) return null;
 
             return (
@@ -82,35 +129,46 @@ const Leads = () => {
       </div>
 
       <div className="mt-4 d-flex align-items-end gap-2">
-        <div className="dropdown flex-grow-1" style={{ maxWidth: "800px" }}>
-          <label className="form-label mb-2 d-block">Quick Filters:</label>
-          <button
-            className="btn btn-secondary dropdown-toggle w-100 text-start"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            {selectedStatus || "Select Status"}
-          </button>
-
-          <ul className="dropdown-menu w-100">
-            {statuses.map((status) => (
-              <li key={status}>
-                <button
-                  onClick={() => handleStatusSelect(status)}
-                  className="dropdown-item"
-                >
-                  {status}
-                </button>
-              </li>
-            ))}
-          </ul>
+        <div>
+          <label htmlFor="status" className="form-label">
+            Quick Filters:
+          </label>
+          <div className="d-flex gap-2">
+            <div style={{ width: "300px" }}>
+              <select
+                name="status"
+                id="status"
+                value={selectedStatus}
+                className="form-select"
+                onChange={handleStatusChange}
+              >
+                <option value="">Select Status</option>
+                {statuses?.map((status) => (
+                  <option value={status}>{status}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ width: "300px" }}>
+              <select
+                name="agent"
+                id="agent"
+                value={selectedAgent}
+                className="form-select"
+                onChange={handleAgentChange}
+              >
+                <option value="">Select Sales Agent</option>
+                {agentList.map((agent) => (
+                  <option value={agent.name}>{agent.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
 
         <button
           className="btn btn-outline-danger"
           onClick={clearFilter}
-          disabled={!selectedStatus}
+          disabled={!selectedStatus && !selectedAgent}
         >
           Clear Filter
         </button>
@@ -124,10 +182,11 @@ const Leads = () => {
       </div>
 
       <div className="row mt-4">
-        {filteredData.length === 0 ? (
+        {loader && <p className="text-center">Loading...</p>}
+        {data?.length === 0 ? (
           <p>No cards found for selected status.</p>
         ) : (
-          filteredData.map((item) => (
+          data?.map((item) => (
             <div key={item._id} className="col-md-4 mb-4">
               <div className="card shadow-sm">
                 <div className="card-body">
@@ -144,14 +203,17 @@ const Leads = () => {
 
                   <ul className="list-unstyled small text-muted mb-0">
                     <li className="mb-1">
-                      <strong>Source:</strong> {item.source || "N/A"}
+                      <strong>Agent Name:</strong> {item.salesAgent.name}
                     </li>
                     <li className="mb-1">
-                      <strong>Priority:</strong> {item.priority || "N/A"}
+                      <strong>Source:</strong> {item.source}
+                    </li>
+                    <li className="mb-1">
+                      <strong>Priority:</strong> {item.priority}
                     </li>
                     <li>
-                      <strong>Time to Close:</strong>{" "}
-                      {item.timeToClose || "N/A"}
+                      <strong>Time to Close:</strong>
+                      {item.timeToClose}
                     </li>
                   </ul>
                 </div>
