@@ -15,6 +15,8 @@ const Leads = () => {
   const [sortOrder, setSortOrder] = useState(""); // "", "low-high", "high-low"
   const [sortedData, setSortedData] = useState(data || []);
 
+  const [timeSortOrder, setTimeSortOrder] = useState(""); // "asc" or "desc"
+
   const statuses = ["New", "Contacted", "Qualified", "Proposal Sent", "Closed"];
 
   const handleStatusChange = (event) => {
@@ -28,6 +30,8 @@ const Leads = () => {
   const clearFilter = () => {
     setSelectedStatus("");
     setSelectedAgent("");
+    setTimeSortOrder("");
+    setSortOrder("");
   };
 
   const handleNewLead = () => {
@@ -95,9 +99,7 @@ const Leads = () => {
       setSortedData(data);
       return;
     }
-
     const priorityOrder = { Low: 1, Medium: 2, High: 3 };
-
     const sorted = [...(data || [])].sort((a, b) => {
       const aPriority = priorityOrder[a.priority] || 0;
       const bPriority = priorityOrder[b.priority] || 0;
@@ -109,6 +111,21 @@ const Leads = () => {
 
     setSortedData(sorted);
   }, [sortOrder, data]);
+
+  useEffect(() => {
+    if (!timeSortOrder) {
+      setSortedData(data);
+      return;
+    }
+
+    const sorted = [...data].sort((a, b) => {
+      const aTime = parseInt(a.timeToClose) || 0;
+      const bTime = parseInt(b.timeToClose) || 0;
+      return timeSortOrder === "low-high" ? aTime - bTime : bTime - aTime;
+    });
+
+    setSortedData(sorted);
+  }, [timeSortOrder, data]);
 
   // Bootstrap badge colors mapped to status
   const badgeColors = {
@@ -157,7 +174,7 @@ const Leads = () => {
             Quick Filters:
           </label>
           <div className="d-flex gap-2">
-            <div style={{ width: "300px" }}>
+            <div style={{ width: "400px" }}>
               <select
                 name="status"
                 id="status"
@@ -171,7 +188,7 @@ const Leads = () => {
                 ))}
               </select>
             </div>
-            <div style={{ width: "300px" }}>
+            <div style={{ width: "400px" }}>
               <select
                 name="agent"
                 id="agent"
@@ -191,7 +208,9 @@ const Leads = () => {
         <button
           className="btn btn-outline-danger"
           onClick={clearFilter}
-          disabled={!selectedStatus && !selectedAgent}
+          disabled={
+            !selectedStatus && !selectedAgent && !timeSortOrder && !sortOrder
+          }
         >
           Clear Filter
         </button>
@@ -214,7 +233,23 @@ const Leads = () => {
           value={sortOrder}
           onChange={(e) => setSortOrder(e.target.value)}
         >
-          <option value="">None</option>
+          <option value="">Select Range</option>
+          <option value="low-high">Low to High</option>
+          <option value="high-low">High to Low</option>
+        </select>
+      </div>
+
+      <div className="mt-4">
+        <label htmlFor="timeSort" className="form-label">
+          Sort by Time to Close
+        </label>
+        <select
+          id="timeSort"
+          className="form-select"
+          value={timeSortOrder}
+          onChange={(e) => setTimeSortOrder(e.target.value)}
+        >
+          <option value="">Select Range</option>
           <option value="low-high">Low to High</option>
           <option value="high-low">High to Low</option>
         </select>
