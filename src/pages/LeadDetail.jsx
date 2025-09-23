@@ -1,8 +1,7 @@
-import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function LeadDetails() {
-  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const lead = location.state.item;
@@ -10,24 +9,63 @@ export default function LeadDetails() {
   const handleEditLead = () => {
     navigate("/lead-form", { state: { mode: "edit", formData: lead } });
   };
-  //   const [comment, setComment] = useState("");
-  //   const [comments, setComments] = useState([]);
-  //   const [lead, setLead] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
+  const [comment, setComment] = useState([]);
+  const [newComment, setNewComment] = useState("");
 
-  //   const handleAddComment = () => {
-  //     if (!comment.trim()) return;
+  const fetchCommentList = () => {
+    fetch(`https://be-major-project-2.vercel.app/leads/${lead._id}/comments`)
+      .then((res) => res.json())
+      .then((data) => {
+        setComment(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setError("Failed to fetch comments.");
+        setLoading(false);
 
-  //     const newComment = {
-  //       author: "You",
-  //       date: new Date().toISOString().split("T")[0],
-  //       text: comment,
-  //     };
+        setTimeout(() => {
+          setError("");
+        }, 5000);
+      });
+  };
 
-  //     setComments((prev) => [newComment, ...prev]);
-  //     setComment("");
-  //   };
+  const handleAddNewComment = () => {
+    fetch(`https://be-major-project-2.vercel.app/leads/${lead._id}/comments`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        salesAgentId: lead.salesAgent._id,
+        commentText: newComment,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setMessage("Comment Added.");
+        setNewComment("");
+        fetchCommentList();
 
-  if (!lead) return <p>Loading lead details...</p>;
+        setTimeout(() => {
+          setMessage("");
+        }, 5000);
+      })
+      .catch((error) => {
+        setError("Failed to Add Comment.");
+        setLoading(false);
+
+        setTimeout(() => {
+          setError("");
+        }, 5000);
+      });
+  };
+
+  useEffect(() => {
+    fetchCommentList();
+  }, []);
 
   return (
     <div className="container mt-4">
@@ -66,34 +104,59 @@ export default function LeadDetails() {
 
       <hr />
 
-      {/* <div>
+      <div>
         <h5>Comments Section</h5>
+
         <div className="mb-3">
           <textarea
             className="form-control"
             rows="2"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            value={newComment}
+            onChange={(event) => setNewComment(event.target.value)}
             placeholder="Add a new comment..."
           ></textarea>
         </div>
-        <button className="btn btn-success mb-3" onClick={handleAddComment}>
+
+        <button className="btn btn-success mb-3" onClick={handleAddNewComment}>
           Submit Comment
         </button>
 
+        {message && (
+          <div className="alert alert-success" role="alert">
+            {message}
+          </div>
+        )}
+
         <div>
-          {comments.length === 0 && <p>No comments yet.</p>}
-          {comments.map((c, index) => (
-            <div key={index} className="border rounded p-2 mb-2">
-              <div className="d-flex justify-content-between">
-                <strong>{c.author}</strong>
-                <small>{c.date}</small>
+          {loading && <p className="text-center">Loading...</p>}
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
+          {comment?.length === 0 && <p>No comments yet.</p>}
+
+          {comment?.map((comment) => (
+            <div
+              key={comment._id}
+              className="border rounded p-3 mb-3 shadow-sm bg-light"
+            >
+              <div className="d-flex justify-content-between align-items-center mb-2">
+                <strong className="text-primary">
+                  {comment?.author?.name}
+                </strong>
+                <small className="text-muted">
+                  {new Date(comment?.createdAt).toLocaleString()}
+                </small>
               </div>
-              <p className="mb-0">Comment: {c.text}</p>
+              <p className="mb-0">
+                <span className="fw-semibold text-secondary">Comment:</span>{" "}
+                {comment.commentText}
+              </p>
             </div>
           ))}
         </div>
-      </div> */}
+      </div>
     </div>
   );
 }

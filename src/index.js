@@ -1,15 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "./index.css";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "./App";
-import Leads from "./pages/Leads";
+import LeadForm from "./components/LeadForm";
+import "./index.css";
 import Agents from "./pages/Agents";
-import Sales from "./pages/Sales";
+import LeadDetails from "./pages/LeadDetail";
+import Leads from "./pages/Leads";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
-import LeadForm from "./components/LeadForm";
-import LeadDetails from "./pages/LeadDetail";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -20,7 +19,6 @@ root.render(
           <Route path="/" element={<Leads />} />
           <Route path="/lead/:id" element={<LeadDetails />} />
           <Route path="/lead-form" element={<LeadForm />} />
-          <Route path="/sales" element={<Sales />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
