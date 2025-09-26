@@ -9,6 +9,7 @@ import LeadDetails from "./pages/LeadDetail";
 import Leads from "./pages/Leads";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
+import AgentForm from "./components/agentForm";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -20,6 +21,7 @@ root.render(
           <Route path="/lead/:id" element={<LeadDetails />} />
           <Route path="/lead-form" element={<LeadForm />} />
           <Route path="/agents" element={<Agents />} />
+          <Route path="/agent-form" element={<AgentForm />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
