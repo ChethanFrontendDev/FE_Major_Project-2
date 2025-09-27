@@ -134,27 +134,30 @@ export default function LeadDetails() {
               {error}
             </div>
           )}
-          {comment?.length === 0 && <p>No comments yet.</p>}
 
-          {comment?.map((comment) => (
-            <div
-              key={comment._id}
-              className="border rounded p-3 mb-3 shadow-sm bg-light"
-            >
-              <div className="d-flex justify-content-between align-items-center mb-2">
-                <strong className="text-primary">
-                  {comment?.author?.name}
-                </strong>
-                <small className="text-muted">
-                  {new Date(comment?.createdAt).toLocaleString()}
-                </small>
+          {Array.isArray(comment) && comment.length > 0 ? (
+            comment?.map((comment) => (
+              <div
+                key={comment._id}
+                className="border rounded p-3 mb-3 shadow-sm bg-light"
+              >
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <strong className="text-primary">
+                    {comment?.author?.name}
+                  </strong>
+                  <small className="text-muted">
+                    {new Date(comment?.createdAt).toLocaleString()}
+                  </small>
+                </div>
+                <p className="mb-0">
+                  <span className="fw-semibold text-secondary">Comment:</span>{" "}
+                  {comment.commentText}
+                </p>
               </div>
-              <p className="mb-0">
-                <span className="fw-semibold text-secondary">Comment:</span>{" "}
-                {comment.commentText}
-              </p>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p>No Comments to Show.</p>
+          )}
         </div>
       </div>
     </div>
