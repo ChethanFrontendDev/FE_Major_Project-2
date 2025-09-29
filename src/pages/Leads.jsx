@@ -3,12 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 const Leads = () => {
   const navigate = useNavigate();
-  const [leadStatusList, setLeadStatusList] = useState(null);
-  const [data, setData] = useState(null);
+  const [leadStatusList, setLeadStatusList] = useState([]);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loader, setLoader] = useState(false);
   const [error, setError] = useState(null);
-  const [agentList, setAgentList] = useState(null);
+  const [agentList, setAgentList] = useState([]);
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("");
 
