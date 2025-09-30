@@ -83,7 +83,7 @@ export default function LeadDetails() {
       <div className="row mb-4">
         <div className="col-md-6">
           <p>
-            <strong>Sales Agent:</strong> {lead.salesAgent.name}
+            <strong>Sales Agent:</strong> {lead?.salesAgent?.name}
           </p>
           <p>
             <strong>Lead Source:</strong> {lead.source}

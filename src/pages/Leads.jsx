@@ -289,7 +289,7 @@ const Leads = () => {
 
                 <ul className="list-unstyled small text-muted mb-0">
                   <li className="mb-1">
-                    <strong>Agent Name:</strong> {item.salesAgent.name}
+                    <strong>Agent Name:</strong> {item?.salesAgent?.name}
                   </li>
                   <li className="mb-1">
                     <strong>Source:</strong> {item.source}

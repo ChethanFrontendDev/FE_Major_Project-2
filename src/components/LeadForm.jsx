@@ -14,14 +14,14 @@ const LeadForm = () => {
     priority: "",
   };
 
-  const [agentList, setAgentList] = useState(null);
+  const [agentList, setAgentList] = useState([]);
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [formValues, setFormValues] = useState(() => {
     if (mode === "edit" && formData) {
       return {
         ...formData,
-        salesAgent: formData.salesAgent._id || formData.salesAgent,
+        salesAgent: formData?.salesAgent?._id || formData?.salesAgent,
         tags: Array.isArray(formData.tags)
           ? formData.tags.join(", ")
           : formData.tags,

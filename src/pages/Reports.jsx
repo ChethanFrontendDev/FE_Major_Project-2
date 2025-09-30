@@ -23,7 +23,7 @@ const Reports = () => {
 
   const leadsClosedBySalesAgent = leadList?.reduce((acc, curr) => {
     if (curr.status === "Closed") {
-      const agentName = curr.salesAgent.name;
+      const agentName = curr?.salesAgent?.name;
       acc[agentName] = (acc[agentName] || 0) + 1;
     }
     return acc;
