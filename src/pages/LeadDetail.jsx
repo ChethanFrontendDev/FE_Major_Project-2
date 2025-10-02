@@ -1,39 +1,36 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import useDefaultContext from "../contexts/defaultContext";
+import useFetch from "../hooks/useFetch";
 
 export default function LeadDetails() {
   const navigate = useNavigate();
+  const { baseUrl } = useDefaultContext();
   const location = useLocation();
   const lead = location.state.item;
 
   const handleEditLead = () => {
     navigate("/lead-form", { state: { mode: "edit", formData: lead } });
   };
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+
+  const [addingComment, setAddingComment] = useState(false);
+  const [postError, setPostError] = useState("");
   const [message, setMessage] = useState("");
-  const [comment, setComment] = useState([]);
   const [newComment, setNewComment] = useState("");
 
-  const fetchCommentList = () => {
-    fetch(`https://be-major-project-2.vercel.app/leads/${lead._id}/comments`)
-      .then((res) => res.json())
-      .then((data) => {
-        setComment(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError("Failed to fetch comments.");
-        setLoading(false);
-
-        setTimeout(() => {
-          setError("");
-        }, 5000);
-      });
-  };
+  const {
+    data: comment,
+    loading: commentLoading,
+    error: commentError,
+    refetch,
+  } = useFetch(`${baseUrl}/leads/${lead._id}/comments`);
 
   const handleAddNewComment = () => {
-    fetch(`https://be-major-project-2.vercel.app/leads/${lead._id}/comments`, {
+    setAddingComment(true);
+    setPostError("");
+    setMessage("");
+
+    fetch(`${baseUrl}/leads/${lead._id}/comments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -47,25 +44,22 @@ export default function LeadDetails() {
       .then((data) => {
         setMessage("Comment Added.");
         setNewComment("");
-        fetchCommentList();
+        setAddingComment(false);
+        refetch();
 
         setTimeout(() => {
           setMessage("");
         }, 5000);
       })
       .catch((error) => {
-        setError("Failed to Add Comment.");
-        setLoading(false);
+        setPostError("Failed to Add Comment.");
+        setAddingComment(false);
 
         setTimeout(() => {
-          setError("");
+          setPostError("");
         }, 5000);
       });
   };
-
-  useEffect(() => {
-    fetchCommentList();
-  }, []);
 
   return (
     <div className="container mt-4">
@@ -122,16 +116,27 @@ export default function LeadDetails() {
         </button>
 
         {message && (
-          <div className="alert alert-success" role="alert">
+          <div className="alert alert-success text-center" role="alert">
             {message}
           </div>
         )}
 
+        {addingComment && (
+          <p className="text-center alert alert-info">Loading...</p>
+        )}
+        {postError && (
+          <div className="alert alert-danger text-center" role="alert">
+            {postError}
+          </div>
+        )}
+
         <div>
-          {loading && <p className="text-center">Loading...</p>}
-          {error && (
-            <div className="alert alert-danger" role="alert">
-              {error}
+          {commentLoading && (
+            <p className="text-center alert alert-info">Loading...</p>
+          )}
+          {commentError && (
+            <div className="alert alert-danger text-center" role="alert">
+              {commentError}
             </div>
           )}
 
