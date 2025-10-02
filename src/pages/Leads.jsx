@@ -1,23 +1,41 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useDefaultContext from "../contexts/defaultContext";
+import useFetch from "../hooks/useFetch";
 
 const Leads = () => {
   const navigate = useNavigate();
-  const [leadStatusList, setLeadStatusList] = useState([]);
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loader, setLoader] = useState(false);
-  const [error, setError] = useState(null);
-  const [agentList, setAgentList] = useState([]);
+  const { baseUrl, statuses, badgeColors } = useDefaultContext();
   const [selectedStatus, setSelectedStatus] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("");
-
   const [sortOrder, setSortOrder] = useState(""); // "", "low-high", "high-low"
-  const [sortedData, setSortedData] = useState(data || []);
-
+  const [sortedData, setSortedData] = useState([]);
   const [timeSortOrder, setTimeSortOrder] = useState(""); // "asc" or "desc"
 
-  const statuses = ["New", "Contacted", "Qualified", "Proposal Sent", "Closed"];
+  // Fetching leads list
+  const {
+    data: leadStatusList,
+    loading: leadStatusLoading,
+    error: leadStatusError,
+  } = useFetch(`${baseUrl}/leads`);
+
+  // Fetching Agent list
+  const {
+    data: agentList,
+    loading: agentLoading,
+    error: agentError,
+  } = useFetch(`${baseUrl}/agents`);
+
+  // Fetching cards by query
+  const query = `status=${selectedStatus}&salesAgent=${selectedAgent}`;
+  const {
+    data,
+    loading: queryLoading,
+    error: queryError,
+  } = useFetch(`${baseUrl}/leads?${query}`);
+
+  const loading = leadStatusLoading || agentLoading || queryLoading;
+  const error = leadStatusError || agentError || queryError;
 
   const handleStatusChange = (event) => {
     setSelectedStatus(event.target.value);
@@ -35,64 +53,8 @@ const Leads = () => {
   };
 
   const handleNewLead = () => {
-    navigate("/lead-form",{state: {mode: "post"}});
+    navigate("/lead-form", { state: { mode: "post" } });
   };
-
-  const fetchLeadStatusList = () => {
-    const url = `https://be-major-project-2.vercel.app/leads`;
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setLeadStatusList(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      });
-  };
-
-  const fetchLeadsData = () => {
-    const query = `status=${selectedStatus}&salesAgent=${selectedAgent}`;
-    const url = `https://be-major-project-2.vercel.app/leads?${query}`;
-
-    setLoader(true);
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("No Leads Found for selected filters.");
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setData(data);
-        setLoader(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setLoader(false);
-      });
-  };
-
-  const getAgentList = () => {
-    fetch("https://be-major-project-2.vercel.app/agents")
-      .then((res) => res.json())
-      .then((data) => {
-        setAgentList(data);
-      })
-      .catch((error) => {
-        setError(error.message);
-      });
-  };
-
-  useEffect(() => {
-    fetchLeadStatusList();
-    getAgentList();
-  }, []);
-
-  useEffect(() => {
-    fetchLeadsData();
-  }, [selectedStatus, selectedAgent]);
 
   useEffect(() => {
     if (!sortOrder) {
@@ -127,16 +89,8 @@ const Leads = () => {
     setSortedData(sorted);
   }, [timeSortOrder, data]);
 
-  // Bootstrap badge colors mapped to status
-  const badgeColors = {
-    New: "primary",
-    Contacted: "warning",
-    Qualified: "success",
-    "Proposal Sent": "info",
-    Closed: "danger",
-  };
-
-  if (loading) return <p className="text-center my-3">Loading...</p>;
+  if (loading)
+    return <p className="text-center alert alert-info my-3">Loading...</p>;
   if (error) return <p className="alert alert-danger">{error}</p>;
 
   return (
@@ -260,14 +214,14 @@ const Leads = () => {
       </div>
 
       <div className="row mt-4">
-        {loader && <p className="text-center">Loading...</p>}
+        {queryLoading && <p className="text-center">Loading...</p>}
 
-        {!loader &&
+        {!queryLoading &&
           (sortedData?.length === 0 || (!sortedData && data?.length === 0)) && (
             <p>No cards found for selected filters.</p>
           )}
 
-        {(sortedData?.length ? sortedData : data)?.map((item) => (
+        {sortedData.map((item) => (
           <div
             key={item._id}
             className="col-md-4 mb-4"
