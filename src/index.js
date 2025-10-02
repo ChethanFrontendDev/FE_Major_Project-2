@@ -10,22 +10,25 @@ import Leads from "./pages/Leads";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import AgentForm from "./components/agentForm";
+import { DefaultContextProvider } from "./contexts/defaultContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
-      <App>
-        <Routes>
-          <Route path="/" element={<Leads />} />
-          <Route path="/lead/:id" element={<LeadDetails />} />
-          <Route path="/lead-form" element={<LeadForm />} />
-          <Route path="/agents" element={<Agents />} />
-          <Route path="/agent-form" element={<AgentForm />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
-      </App>
-    </BrowserRouter>
+    <DefaultContextProvider>
+      <BrowserRouter>
+        <App>
+          <Routes>
+            <Route path="/" element={<Leads />} />
+            <Route path="/lead/:id" element={<LeadDetails />} />
+            <Route path="/lead-form" element={<LeadForm />} />
+            <Route path="/agents" element={<Agents />} />
+            <Route path="/agent-form" element={<AgentForm />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </App>
+      </BrowserRouter>
+    </DefaultContextProvider>
   </React.StrictMode>
 );
