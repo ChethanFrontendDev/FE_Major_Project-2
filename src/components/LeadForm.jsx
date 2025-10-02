@@ -1,9 +1,13 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import useDefaultContext from "../contexts/defaultContext";
+import useFetch from "../hooks/useFetch";
 
 const LeadForm = () => {
+  const { baseUrl, statuses } = useDefaultContext();
   const location = useLocation();
-  const { mode, formData } = location.state;
+  const navigate = useNavigate();
+  const { mode, formData, refetchLeads } = location.state;
   const initialFormData = {
     name: "",
     source: "",
@@ -14,8 +18,8 @@ const LeadForm = () => {
     priority: "",
   };
 
-  const [agentList, setAgentList] = useState([]);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [formValues, setFormValues] = useState(() => {
     if (mode === "edit" && formData) {
@@ -30,6 +34,8 @@ const LeadForm = () => {
       return initialFormData;
     }
   });
+
+  const { data: agentList } = useFetch(`${baseUrl}/agents`);
 
   const handleFormValues = (event) => {
     const { name, value } = event.target;
@@ -54,9 +60,10 @@ const LeadForm = () => {
     const method = mode === "edit" ? "PUT" : "POST";
     const url =
       mode === "edit"
-        ? `https://be-major-project-2.vercel.app/leads/${formValues._id}`
-        : `https://be-major-project-2.vercel.app/leads`;
+        ? `${baseUrl}/leads/${formValues._id}`
+        : `${baseUrl}/leads`;
 
+    setLoading(true);
     fetch(url, {
       method,
       headers: {
@@ -66,7 +73,7 @@ const LeadForm = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (!mode === "edit") {
+        if (mode !== "edit") {
           setFormValues(initialFormData);
         }
         setMessage(
@@ -75,6 +82,12 @@ const LeadForm = () => {
             : "Lead Added Successfully."
         );
         setErrorMessage("");
+        setLoading(false);
+
+        setTimeout(() => {
+          setMessage("");
+          setErrorMessage("");
+        }, 3000);
       })
       .catch((error) => {
         console.error(error);
@@ -82,23 +95,9 @@ const LeadForm = () => {
           mode === "edit" ? "Failed to Update Lead." : "Failed to Add Lead."
         );
         setMessage("");
+        setLoading(false);
       });
   };
-
-  const getAgentList = () => {
-    fetch("https://be-major-project-2.vercel.app/agents")
-      .then((res) => res.json())
-      .then((data) => {
-        setAgentList(data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  };
-
-  useEffect(() => {
-    getAgentList();
-  }, []);
 
   return (
     <div className="bg-light rounded mx-5">
@@ -172,11 +171,11 @@ const LeadForm = () => {
             required
           >
             <option value="">Please select status</option>
-            <option value="New">New</option>
-            <option value="Contacted">Contacted</option>
-            <option value="Qualified">Qualified</option>
-            <option value="Proposal Sent">Proposal Sent</option>
-            <option value="Closed">Closed</option>
+            {statuses?.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
           </select>
         </div>
         <div className="mb-3">
@@ -227,11 +226,15 @@ const LeadForm = () => {
         </div>
         <div className="pb-3">
           <button className="btn btn-primary" type="submit">
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </button>
-          {message && <p className="text-success pt-3">{message}</p>}
-          {errorMessage && <p className="text-danger pt-3">{errorMessage}</p>}
         </div>
+        {message && (
+          <p className="alert alert-success text-center pt-3">{message}</p>
+        )}
+        {errorMessage && (
+          <p className="alert alert-danger text-center pt-3">{errorMessage}</p>
+        )}
       </form>
     </div>
   );

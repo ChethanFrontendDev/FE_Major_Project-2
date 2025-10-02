@@ -9,10 +9,6 @@ export default function LeadDetails() {
   const location = useLocation();
   const lead = location.state.item;
 
-  const handleEditLead = () => {
-    navigate("/lead-form", { state: { mode: "edit", formData: lead } });
-  };
-
   const [addingComment, setAddingComment] = useState(false);
   const [postError, setPostError] = useState("");
   const [message, setMessage] = useState("");
@@ -24,6 +20,12 @@ export default function LeadDetails() {
     error: commentError,
     refetch,
   } = useFetch(`${baseUrl}/leads/${lead._id}/comments`);
+
+  const handleEditLead = () => {
+    navigate("/lead-form", {
+      state: { mode: "edit", formData: lead },
+    });
+  };
 
   const handleAddNewComment = () => {
     setAddingComment(true);
