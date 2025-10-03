@@ -94,10 +94,10 @@ const Leads = () => {
   if (error) return <p className="alert alert-danger">{error}</p>;
 
   return (
-    <div>
+    <div className="container">
       <div className="p-3 border rounded bg-light">
         <h5 className="mb-3">Lead Status:</h5>
-        <ul className="list-group ">
+        <ul className="list-group">
           {statuses.map((status) => {
             const count =
               leadStatusList?.filter((item) => item.status === status).length ||
@@ -122,65 +122,68 @@ const Leads = () => {
         </ul>
       </div>
 
-      <div className="mt-4 d-flex align-items-end gap-2">
-        <div>
+      {/* Quick Filters Section */}
+      <div className="mt-4 row g-2 align-items-end">
+        <div className="col-12 col-md-5">
           <label htmlFor="status" className="form-label">
-            Quick Filters:
+            Quick Filters - Status
           </label>
-          <div className="d-flex gap-2">
-            <div style={{ width: "400px" }}>
-              <select
-                name="status"
-                id="status"
-                value={selectedStatus}
-                className="form-select"
-                onChange={handleStatusChange}
-              >
-                <option value="">Select Status</option>
-                {statuses?.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div style={{ width: "400px" }}>
-              <select
-                name="agent"
-                id="agent"
-                value={selectedAgent}
-                className="form-select"
-                onChange={handleAgentChange}
-              >
-                <option value="">Select Sales Agent</option>
-                {agentList.map((agent) => (
-                  <option key={agent._id} value={agent.name}>
-                    {agent.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          <select
+            name="status"
+            id="status"
+            value={selectedStatus}
+            className="form-select"
+            onChange={handleStatusChange}
+          >
+            <option value="">Select Status</option>
+            {statuses?.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
         </div>
 
-        <button
-          className="btn btn-outline-danger"
-          onClick={clearFilter}
-          disabled={
-            !selectedStatus && !selectedAgent && !timeSortOrder && !sortOrder
-          }
-        >
-          Clear Filter
-        </button>
+        <div className="col-12 col-md-5">
+          <label htmlFor="agent" className="form-label">
+            Quick Filters - Sales Agent
+          </label>
+          <select
+            name="agent"
+            id="agent"
+            value={selectedAgent}
+            className="form-select"
+            onChange={handleAgentChange}
+          >
+            <option value="">Select Sales Agent</option>
+            {agentList.map((agent) => (
+              <option key={agent._id} value={agent.name}>
+                {agent.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => handleNewLead()}
-        >
-          Add New Lead
-        </button>
+        <div className="col-12 col-md-2 d-flex gap-2">
+          <button
+            className="btn btn-outline-danger w-100"
+            onClick={clearFilter}
+            disabled={
+              !selectedStatus && !selectedAgent && !timeSortOrder && !sortOrder
+            }
+          >
+            Clear Filter
+          </button>
+          <button
+            className="btn btn-outline-primary w-100"
+            onClick={handleNewLead}
+          >
+            Add New Lead
+          </button>
+        </div>
       </div>
 
+      {/* Priority Sort */}
       <div className="mt-4">
         <label htmlFor="prioritySort" className="form-label">
           Sort by Priority:
@@ -197,9 +200,10 @@ const Leads = () => {
         </select>
       </div>
 
+      {/* Time Sort */}
       <div className="mt-4">
         <label htmlFor="timeSort" className="form-label">
-          Sort by Time to Close
+          Sort by Time to Close:
         </label>
         <select
           id="timeSort"
@@ -213,22 +217,23 @@ const Leads = () => {
         </select>
       </div>
 
+      {/* Cards Section */}
       <div className="row mt-4">
         {queryLoading && <p className="text-center">Loading...</p>}
 
         {!queryLoading &&
           (sortedData?.length === 0 || (!sortedData && data?.length === 0)) && (
-            <p>No cards found for selected filters.</p>
+            <p className="text-center">No cards found for selected filters.</p>
           )}
 
         {sortedData.map((item) => (
           <div
             key={item._id}
-            className="col-md-4 mb-4"
+            className="col-12 col-sm-6 col-lg-4 mb-4"
             onClick={() => navigate(`/lead/${item._id}`, { state: { item } })}
             style={{ cursor: "pointer" }}
           >
-            <div className="card shadow-sm">
+            <div className="card shadow-sm h-100">
               <div className="card-body">
                 <div className="d-flex justify-content-between align-items-start mb-2">
                   <h5 className="card-title mb-0">{item.name}</h5>

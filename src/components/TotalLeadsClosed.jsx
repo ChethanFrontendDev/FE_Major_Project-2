@@ -36,7 +36,7 @@ const TotalLeadsClosed = ({
   };
 
   return (
-    <div style={{ width: "400px", margin: "0 auto" }}>
+    <div >
       <Pie data={data} options={options} />
     </div>
   );

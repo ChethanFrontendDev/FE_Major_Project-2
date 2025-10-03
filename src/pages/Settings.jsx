@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useDefaultContext from "../contexts/defaultContext";
-import useFetch from "../hooks/useFetch";
 import useDelete from "../hooks/useDelete";
+import useFetch from "../hooks/useFetch";
 
 const Settings = () => {
   const { baseUrl } = useDefaultContext();
@@ -44,9 +44,9 @@ const Settings = () => {
   return (
     <>
       <div className="container">
-        <div className="mb-3 bg-light p-3 rounded">
+        <div className="mb-3 bg-light p-3 rounded d-flex flex-wrap gap-2">
           <button
-            className={`btn btn-outline-primary me-4 ${
+            className={`btn btn-outline-primary ${
               activeTab === "leads" ? "active" : ""
             }`}
             onClick={() => setActiveTab("leads")}
@@ -76,13 +76,16 @@ const Settings = () => {
       {activeTab === "leads" && (
         <div className="row">
           {leadList?.map((item) => (
-            <div key={item._id} className="col-md-4 mb-4">
+            <div
+              key={item._id}
+              className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
+            >
               <div className="card shadow-sm h-100">
                 <div className="card-body">
                   <div className="d-flex justify-content-between align-items-start mb-2">
                     <h5 className="card-title mb-0">{item.name}</h5>
                     <span
-                      className="btn btn-danger"
+                      className="btn btn-danger btn-sm"
                       onClick={() => handleDeleteLeads(item._id)}
                     >
                       Delete
@@ -90,16 +93,16 @@ const Settings = () => {
                   </div>
 
                   <ul className="list-unstyled small text-muted mb-0">
-                    <li className="mb-1">
+                    <li>
                       <strong>Agent Name:</strong> {item?.salesAgent?.name}
                     </li>
-                    <li className="mb-1">
+                    <li>
                       <strong>Source:</strong> {item.source}
                     </li>
-                    <li className="mb-1">
+                    <li>
                       <strong>Status:</strong> {item.status}
                     </li>
-                    <li className="mb-1">
+                    <li>
                       <strong>Priority:</strong> {item.priority}
                     </li>
                     <li>
@@ -119,20 +122,23 @@ const Settings = () => {
       {activeTab === "agents" && (
         <div className="row">
           {agentList?.map((agent) => (
-            <div key={agent._id} className="col-md-4 mb-4">
+            <div
+              key={agent._id}
+              className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
+            >
               <div className="card shadow-sm h-100">
                 <div className="card-body">
                   <div className="d-flex justify-content-between align-items-start mb-2">
                     <ul className="list-unstyled small text-muted mb-0">
-                      <li className="mb-1">
+                      <li>
                         <strong>Agent Name:</strong> {agent.name}
                       </li>
-                      <li className="mb-1">
+                      <li>
                         <strong>Email:</strong> {agent.email}
                       </li>
                     </ul>
                     <span
-                      className="btn btn-danger"
+                      className="btn btn-danger btn-sm"
                       onClick={() => handleDeleteAgent(agent._id)}
                     >
                       Delete

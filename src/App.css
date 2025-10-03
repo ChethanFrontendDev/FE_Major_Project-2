@@ -23,3 +23,27 @@ body {
   padding: 1rem;
   font-size: 20px;
 }
+
+/* Media Querries */
+
+/* Sidebar */
+/* Medium screens (≥576px and <992px) */
+@media (max-width: 991px) {
+  .sidebar .nav-link {
+    font-size: 1rem;
+  }
+}
+/* Small screens (≤576px) */
+@media (max-width: 576px) {
+  .sidebar .nav-link {
+    font-size: 0.6rem;
+  }
+}
+
+/* reports page */
+/* Small screens (≤576px) */
+@media (max-width: 576px) {
+  .chart-container {
+    max-width: 300px !important;
+  }
+}

@@ -58,26 +58,34 @@ const Reports = () => {
       {!loading && (
         <div className="container">
           <h4 className="text-center mb-4 bg-light py-3">Report Overview</h4>
+
+          {/* Charts Row */}
           <div className="row mb-5">
-            <div className="col-12 col-md-6 mb-4">
+            <div className="col-12 col-md-6 mb-4 chart-container">
               <LeadClosedBySalesAgent
                 salesAgentName={Object.keys(leadsClosedBySalesAgent)}
                 counts={Object.values(leadsClosedBySalesAgent)}
               />
             </div>
-            <div className="col-12 col-md-6 mb-4">
+            <div className="col-12 col-md-6 mb-4 chart-container">
               <LeadStatusDistribution
                 statusDistributionCount={statusDistributionCount}
               />
             </div>
           </div>
 
+          {/* Summary Row */}
           <div className="row">
-            <div className="col-12">
-              <TotalLeadsClosed
-                totalLeadsClosedByLastWeek={leadsClosedLastWeek}
-                totalLeadsInPipeline={totalLeadsInPipeline}
-              />
+            <div className="col-12 d-flex justify-content-center">
+              <div
+                className="chart-container"
+                style={{ width: "400px", margin: "0 auto" }}
+              >
+                <TotalLeadsClosed
+                  totalLeadsClosedByLastWeek={leadsClosedLastWeek}
+                  totalLeadsInPipeline={totalLeadsInPipeline}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -85,4 +93,5 @@ const Reports = () => {
     </>
   );
 };
+
 export default Reports;
