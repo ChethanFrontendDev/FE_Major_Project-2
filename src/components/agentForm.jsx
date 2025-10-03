@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
+import useDefaultContext from "../contexts/defaultContext";
 
 const AgentForm = () => {
+  const { baseUrl, handleChange } = useDefaultContext();
   const initialFormValues = {
     name: "",
     email: "",
@@ -9,18 +11,10 @@ const AgentForm = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormValue((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const handleFormSubmit = (event) => {
     event.preventDefault();
 
-    fetch(`https://be-major-project-2.vercel.app/agents`, {
+    fetch(`${baseUrl}/agents`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,7 +65,7 @@ const AgentForm = () => {
             id="name"
             value={formValue.name}
             className="form-control"
-            onChange={handleChange}
+            onChange={handleChange(setFormValue)}
             required
           />
         </div>
@@ -85,7 +79,7 @@ const AgentForm = () => {
             id="email"
             value={formValue.email}
             className="form-control"
-            onChange={handleChange}
+            onChange={handleChange(setFormValue)}
             required
           />
         </div>

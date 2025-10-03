@@ -1,37 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import useDefaultContext from "../contexts/defaultContext";
+import useFetch from "../hooks/useFetch";
 
 const Agents = () => {
   const navigate = useNavigate();
-  const [agentList, setAgentList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { baseUrl } = useDefaultContext();
 
-  const getSalesAgentList = () => {
-    fetch(`https://be-major-project-2.vercel.app/agents`)
-      .then((res) => res.json())
-      .then((data) => {
-        setAgentList(data);
-        setLoading(false);
-        setError("");
-      })
-      .catch((error) => {
-        setError("Failed to Fetch Agents.");
-        setLoading(false);
-      });
-  };
+  const { data: agentList, loading, error } = useFetch(`${baseUrl}/agents`);
 
   const handleNewAgent = () => {
     navigate("/agent-form");
   };
 
-  useEffect(() => {
-    getSalesAgentList();
-  }, []);
-
   return (
     <div className="container my-2">
-      {loading && <p className="alert alert-success text-center">Loading...</p>}
+      {loading && <p className="alert alert-info text-center">Loading...</p>}
       {error && <p className="alert alert-danger text-center">{error}</p>}
 
       {!loading && (

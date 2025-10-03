@@ -4,10 +4,9 @@ import useDefaultContext from "../contexts/defaultContext";
 import useFetch from "../hooks/useFetch";
 
 const LeadForm = () => {
-  const { baseUrl, statuses } = useDefaultContext();
+  const { baseUrl, statuses, handleChange } = useDefaultContext();
   const location = useLocation();
-  const navigate = useNavigate();
-  const { mode, formData, refetchLeads } = location.state;
+  const { mode, formData } = location.state;
   const initialFormData = {
     name: "",
     source: "",
@@ -21,7 +20,7 @@ const LeadForm = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [formValues, setFormValues] = useState(() => {
+  const [formValue, setFormValue] = useState(() => {
     if (mode === "edit" && formData) {
       return {
         ...formData,
@@ -37,21 +36,12 @@ const LeadForm = () => {
 
   const { data: agentList } = useFetch(`${baseUrl}/agents`);
 
-  const handleFormValues = (event) => {
-    const { name, value } = event.target;
-
-    setFormValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
   const handleFormSubmit = (event) => {
     event.preventDefault();
 
     const payload = {
-      ...formValues,
-      tags: formValues.tags
+      ...formValue,
+      tags: formValue.tags
         .split(",")
         .map((tag) => tag.trim())
         .filter((tag) => tag !== ""),
@@ -60,7 +50,7 @@ const LeadForm = () => {
     const method = mode === "edit" ? "PUT" : "POST";
     const url =
       mode === "edit"
-        ? `${baseUrl}/leads/${formValues._id}`
+        ? `${baseUrl}/leads/${formValue._id}`
         : `${baseUrl}/leads`;
 
     setLoading(true);
@@ -74,7 +64,7 @@ const LeadForm = () => {
       .then((res) => res.json())
       .then((data) => {
         if (mode !== "edit") {
-          setFormValues(initialFormData);
+          setFormValue(initialFormData);
         }
         setMessage(
           mode === "edit"
@@ -111,9 +101,9 @@ const LeadForm = () => {
             type="text"
             id="name"
             name="name"
-            value={formValues.name}
+            value={formValue.name}
             className="form-control"
-            onChange={handleFormValues}
+            onChange={handleChange(setFormValue)}
             required
           />
         </div>
@@ -125,8 +115,8 @@ const LeadForm = () => {
             id="source"
             className="form-select"
             name="source"
-            value={formValues.source}
-            onChange={handleFormValues}
+            value={formValue.source}
+            onChange={handleChange(setFormValue)}
             required
           >
             <option value="">Please select source</option>
@@ -145,9 +135,9 @@ const LeadForm = () => {
           <select
             id="salesAgent"
             name="salesAgent"
-            value={formValues.salesAgent}
+            value={formValue.salesAgent}
             className="form-select"
-            onChange={handleFormValues}
+            onChange={handleChange(setFormValue)}
             required
           >
             <option value="">Please select sales agent</option>
@@ -165,9 +155,9 @@ const LeadForm = () => {
           <select
             id="status"
             name="status"
-            value={formValues.status}
+            value={formValue.status}
             className="form-select"
-            onChange={handleFormValues}
+            onChange={handleChange(setFormValue)}
             required
           >
             <option value="">Please select status</option>
@@ -185,10 +175,10 @@ const LeadForm = () => {
           <input
             type="text"
             name="tags"
-            value={formValues.tags}
+            value={formValue.tags}
             id="tags"
             className="form-control"
-            onChange={handleFormValues}
+            onChange={handleChange(setFormValue)}
             required
           />
         </div>
@@ -199,10 +189,10 @@ const LeadForm = () => {
           <input
             type="number"
             name="timeToClose"
-            value={formValues.timeToClose}
+            value={formValue.timeToClose}
             id="timeToClose"
             className="form-control"
-            onChange={handleFormValues}
+            onChange={handleChange(setFormValue)}
             required
           />
         </div>
@@ -213,9 +203,9 @@ const LeadForm = () => {
           <select
             id="priority"
             name="priority"
-            value={formValues.priority}
+            value={formValue.priority}
             className="form-select"
-            onChange={handleFormValues}
+            onChange={handleChange(setFormValue)}
             required
           >
             <option value="">Please select priority</option>

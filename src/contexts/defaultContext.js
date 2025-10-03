@@ -21,8 +21,18 @@ export function DefaultContextProvider({ children }) {
     Closed: "danger",
   };
 
+  const handleChange = (setFormValue) => (event) => {
+    const { name, value } = event.target;
+    setFormValue((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   return (
-    <DefaultContext.Provider value={{ baseUrl, statuses, badgeColors }}>
+    <DefaultContext.Provider
+      value={{ baseUrl, statuses, badgeColors, handleChange }}
+    >
       {children}
     </DefaultContext.Provider>
   );
