@@ -1,92 +1,72 @@
 import { useEffect, useState } from "react";
+import useDefaultContext from "../contexts/defaultContext";
+import useFetch from "../hooks/useFetch";
 
 const Settings = () => {
+  const { baseUrl } = useDefaultContext();
   const [activeTab, setActiveTab] = useState("leads");
+  const [deleteMessage, setDeleteMessage] = useState("");
+  const [deleteError, setDeleteError] = useState("");
 
-  const [leadList, setLeadList] = useState([]);
-  const [agentList, setAgentList] = useState([]);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const {
+    data: leadList,
+    loading: leadListLoader,
+    error: leadListError,
+    refetch: fetchLeadList,
+  } = useFetch(`${baseUrl}/leads`);
+
+  const {
+    data: agentList,
+    loading: agentListLoader,
+    error: agentListError,
+    refetch: fetchAgentList,
+  } = useFetch(`${baseUrl}/agents`);
+
+  const loading = leadListLoader || agentListLoader;
+  const error = leadListError || agentListError;
 
   const handleDeleteAgent = (id) => {
-    fetch(`https://be-major-project-2.vercel.app/agents/${id}`, {
+    fetch(`${baseUrl}/agents/${id}`, {
       method: "DELETE",
     })
       .then((res) => res.json())
       .then((data) => {
-        setMessage("Agent Deleted Successfully.");
-        setError("");
-        getAgentList();
+        setDeleteMessage("Agent Deleted Successfully.");
+        setDeleteError("");
+        fetchAgentList();
       })
       .catch((error) => {
-        setMessage("");
-        setError("Failed to delete");
+        setDeleteMessage("");
+        setDeleteError("Failed to delete");
       });
   };
 
   const handleDeleteLeads = (id) => {
-    fetch(`https://be-major-project-2.vercel.app/leads/${id}`, {
+    fetch(`${baseUrl}/leads/${id}`, {
       method: "DELETE",
     })
       .then((res) => res.json())
       .then((data) => {
-        setMessage("Lead Deleted Successfully.");
-        setError("");
-        fetchLeadStatusList();
+        setDeleteMessage("Lead Deleted Successfully.");
+        setDeleteError("");
+        fetchLeadList();
       })
       .catch((error) => {
-        setMessage("");
-        setError("Failed to delete a lead.");
-      });
-  };
-
-  const fetchLeadStatusList = () => {
-    const url = `https://be-major-project-2.vercel.app/leads`;
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setLeadList(data);
-        setLoading(false);
-        setError("");
-      })
-      .catch((error) => {
-        setError("Failed to fetch leads.");
-        setLoading(false);
-        setLeadList([]);
-      });
-  };
-
-  const getAgentList = () => {
-    fetch("https://be-major-project-2.vercel.app/agents")
-      .then((res) => res.json())
-      .then((data) => {
-        setAgentList(data);
-        setLoading(false);
-        setError("");
-      })
-      .catch((error) => {
-        setError("Failed to fetch agents.");
-        setLoading(false);
-        setAgentList([]);
+        setDeleteMessage("");
+        setDeleteError("Failed to delete a lead.");
       });
   };
 
   useEffect(() => {
-    fetchLeadStatusList();
-    getAgentList();
-  }, []);
-
-  useEffect(() => {
-    if (message || error) {
+    if (deleteMessage || deleteError) {
       const timer = setTimeout(() => {
-        setMessage("");
-        setError("");
+        setDeleteMessage("");
+        setDeleteError("");
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [message, error]);
+  }, [deleteMessage, deleteError]);
 
   return (
     <>
@@ -113,7 +93,12 @@ const Settings = () => {
 
       {loading && <p className="text-center alert alert-info">Loading...</p>}
       {error && <p className="text-center alert alert-danger">{error}</p>}
-      {message && <p className="text-center alert alert-success">{message}</p>}
+      {deleteError && (
+        <p className="text-center alert alert-danger">{deleteError}</p>
+      )}
+      {deleteMessage && (
+        <p className="text-center alert alert-success">{deleteMessage}</p>
+      )}
 
       {activeTab === "leads" && (
         <div className="row">
@@ -152,6 +137,9 @@ const Settings = () => {
               </div>
             </div>
           ))}
+          {leadList?.length === 0 && (
+            <p className="text-center text-muted">No Leads Found</p>
+          )}
         </div>
       )}
 
@@ -181,6 +169,9 @@ const Settings = () => {
               </div>
             </div>
           ))}
+          {agentList?.length === 0 && (
+            <p className="text-center text-muted">No Agents Found</p>
+          )}
         </div>
       )}
     </>
