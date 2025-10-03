@@ -1,16 +1,37 @@
-import { useEffect, useState } from "react";
-import TotalLeadsClosed from "../components/TotalLeadsClosed";
 import LeadClosedBySalesAgent from "../components/LeadClosedBySalesAgent";
 import LeadStatusDistribution from "../components/LeadStatusDistribution";
+import TotalLeadsClosed from "../components/TotalLeadsClosed";
+import useDefaultContext from "../contexts/defaultContext";
+import useFetch from "../hooks/useFetch";
 
 const Reports = () => {
-  const [leadsClosedLastWeek, setLeadsClosedLastWeek] = useState([]);
-  const [totalLeadsInPipeline, setTotalLeadsInPipeline] = useState([]);
-  const [leadList, setLeadList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const { baseUrl, statuses } = useDefaultContext();
 
-  const statuses = ["New", "Contacted", "Qualified", "Proposal Sent", "Closed"];
+  // leads list
+  const {
+    data: leadList,
+    loading: leadListLoader,
+    error: leadListError,
+  } = useFetch(`${baseUrl}/leads`);
+
+  // leads closed last week
+  const {
+    data: leadsClosedLastWeek,
+    loading: leadsClosedLastWeekLoader,
+    error: leadsClosedLastWeekError,
+  } = useFetch(`${baseUrl}/report/last-week`);
+
+  // total leads in pipeline
+  const {
+    data: totalLeadsInPipeline,
+    loading: totalLeadsInPipelineLoader,
+    error: totalLeadsInPipelineError,
+  } = useFetch(`${baseUrl}/report/pipeline`);
+
+  const loading =
+    leadListLoader || leadsClosedLastWeekLoader || totalLeadsInPipelineLoader;
+  const error =
+    leadListError || leadsClosedLastWeekError || totalLeadsInPipelineError;
 
   const statusDistributionCount = statuses.reduce((acc, curr) => {
     const count = leadList?.filter((item) => item.status === curr).length || 0;
@@ -29,53 +50,6 @@ const Reports = () => {
     return acc;
   }, {});
 
-  const fetchTotalLeadsClosed = () => {
-    fetch(`https://be-major-project-2.vercel.app/report/last-week`)
-      .then((res) => res.json())
-      .then((data) => {
-        setLeadsClosedLastWeek(data);
-        setLoading(false);
-        setError("");
-      })
-      .catch((error) => {
-        setError("Failed to Fetch Leads Closed by Last Week.");
-        setLeadsClosedLastWeek([]);
-      });
-  };
-
-  const fetchLeadsInPipeLine = () => {
-    fetch(`https://be-major-project-2.vercel.app/report/pipeline`)
-      .then((res) => res.json())
-      .then((data) => {
-        setTotalLeadsInPipeline(data);
-        setLoading(false);
-        setError("");
-      })
-      .catch((error) => {
-        setError("Failed to Fetch Leads in Pipeline");
-        setTotalLeadsInPipeline([]);
-      });
-  };
-
-  const fetchLeadList = () => {
-    fetch(`https://be-major-project-2.vercel.app/leads`)
-      .then((res) => res.json())
-      .then((data) => {
-        setLeadList(data);
-        setLoading(false);
-        setError("");
-      })
-      .catch((error) => {
-        setError("Failed to Fetch Leads");
-        setLeadList("");
-      });
-  };
-
-  useEffect(() => {
-    fetchTotalLeadsClosed();
-    fetchLeadsInPipeLine();
-    fetchLeadList();
-  }, []);
   return (
     <>
       {loading && <p className="text-center alert alert-info">Loading</p>}
