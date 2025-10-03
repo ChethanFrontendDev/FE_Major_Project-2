@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useDefaultContext from "../contexts/defaultContext";
 import useFetch from "../hooks/useFetch";
