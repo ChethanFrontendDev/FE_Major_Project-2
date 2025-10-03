@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import useDefaultContext from "../contexts/defaultContext";
 import useFetch from "../hooks/useFetch";
+import useDelete from "../hooks/useDelete";
 
 const Settings = () => {
   const { baseUrl } = useDefaultContext();
+  const { deleteMessage, deleteError, deleteHandler } = useDelete();
   const [activeTab, setActiveTab] = useState("leads");
-  const [deleteMessage, setDeleteMessage] = useState("");
-  const [deleteError, setDeleteError] = useState("");
 
+  // leads list
   const {
     data: leadList,
     loading: leadListLoader,
@@ -15,6 +16,7 @@ const Settings = () => {
     refetch: fetchLeadList,
   } = useFetch(`${baseUrl}/leads`);
 
+  // agents list
   const {
     data: agentList,
     loading: agentListLoader,
@@ -25,48 +27,19 @@ const Settings = () => {
   const loading = leadListLoader || agentListLoader;
   const error = leadListError || agentListError;
 
-  const handleDeleteAgent = (id) => {
-    fetch(`${baseUrl}/agents/${id}`, {
-      method: "DELETE",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setDeleteMessage("Agent Deleted Successfully.");
-        setDeleteError("");
-        fetchAgentList();
-      })
-      .catch((error) => {
-        setDeleteMessage("");
-        setDeleteError("Failed to delete");
-      });
-  };
-
+  // delete lead
   const handleDeleteLeads = (id) => {
-    fetch(`${baseUrl}/leads/${id}`, {
-      method: "DELETE",
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setDeleteMessage("Lead Deleted Successfully.");
-        setDeleteError("");
-        fetchLeadList();
-      })
-      .catch((error) => {
-        setDeleteMessage("");
-        setDeleteError("Failed to delete a lead.");
-      });
+    deleteHandler(`${baseUrl}/leads/${id}`).then(() => {
+      fetchLeadList();
+    });
   };
 
-  useEffect(() => {
-    if (deleteMessage || deleteError) {
-      const timer = setTimeout(() => {
-        setDeleteMessage("");
-        setDeleteError("");
-      }, 3000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [deleteMessage, deleteError]);
+  // delete agent
+  const handleDeleteAgent = (id) => {
+    deleteHandler(`${baseUrl}/agents/${id}`).then(() => {
+      fetchAgentList();
+    });
+  };
 
   return (
     <>
