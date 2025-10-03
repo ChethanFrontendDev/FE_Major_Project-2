@@ -27,7 +27,7 @@ const useDelete = () => {
       })
       .catch((error) => {
         setDeleteError(error.message || "Something went wrong.");
-        return error;
+        throw error;
       })
       .finally(() => {
         setDeleteLoader(false);
