@@ -36,9 +36,11 @@ npm run dev  # or `npm start` / `yarn dev`
 
 - React JS
 - React Router
+- Bootstrap
 - Node JS
 - Express
 - MongoDB
+- Chart JS
 
 ---
 
